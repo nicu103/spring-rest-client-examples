@@ -20,25 +20,17 @@ public class UserController {
     }
 
     @GetMapping({"", "/", "/index"})
-    public String index(){
+    public String index() {
         return "index";
     }
 
     @PostMapping("/users")
-    public String formPost(Model model, ServerWebExchange serverWebExchange){
-
-        MultiValueMap<String, String> map = serverWebExchange.getFormData().block();
-
-        Integer limit = new Integer(map.get("limit").get(0));
-
-        log.debug("Received Limit value: " + limit);
-        if(limit == null || limit == 0){
-            log.debug("Setting limit to default of 10");
-            limit = 10;
-        }
-
-        model.addAttribute("users", apiService.getUsers(limit));
-
+    public String formPost(Model model, ServerWebExchange serverWebExchange) {
+        model.addAttribute("users", apiService
+                .getUsers(serverWebExchange
+                        .getFormData()
+                        .map(data -> new Integer(data.getFirst("limit")))
+                ));
         return "userlist";
     }
 }
